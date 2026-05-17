@@ -1,0 +1,10 @@
+node_modules
+dist
+build
+uploads
+.venv
+__pycache__
+.git
+*.log
+*.env
+frontend/node_modules

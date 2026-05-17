@@ -1,0 +1,24 @@
+{
+	"name": "auth-service",
+	"version": "1.0.0",
+	"type": "module",
+	"description": "Authentication microservice for chatroom",
+	"main": "server.js",
+	"scripts": {
+		"dev": "node server.js",
+		"start": "node server.js"
+	},
+	"keywords": [
+		"auth",
+		"jwt",
+		"microservice"
+	],
+	"author": "",
+	"license": "ISC",
+	"dependencies": {
+		"express": "^4.18.2",
+		"jsonwebtoken": "^9.0.0",
+		"bcryptjs": "^2.4.3",
+		"cors": "^2.8.5"
+	}
+}

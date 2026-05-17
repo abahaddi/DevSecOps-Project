@@ -1,0 +1,32 @@
+version: "3.8"
+
+services:
+      auth-service:
+            build: ./auth-service
+            ports:
+                  - "3001:3001"
+            restart: unless-stopped
+
+      file-service:
+            build: ./file-service
+            ports:
+                  - "3002:3002"
+            volumes:
+                  - file-uploads:/app/uploads
+            restart: unless-stopped
+
+      backend:
+            build: ./backend
+            ports:
+                  - "8080:8080"
+            restart: unless-stopped
+
+      frontend:
+            build: ./frontend
+            ports:
+                  - "5173:80"
+            restart: unless-stopped
+
+volumes:
+      file-uploads:
+            driver: local

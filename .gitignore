@@ -1,0 +1,6 @@
+frontend/node_modules
+frontend/package-lock.json
+auth-service/node_modules
+auth-service/package-lock.json
+file-service/env
+file-service/uploads

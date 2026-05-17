@@ -1,12 +1,21 @@
 import { useState, useEffect, useRef } from "react";
+import FileShare from "./FileShare";
 
 interface Message {
 	id: number;
 	text: string;
 	self: boolean;
+	type?: "text" | "file";
+	filename?: string;
+	threatLevel?: string;
 }
 
-export default function Chat() {
+interface ChatProps {
+	username: string;
+	onLogout: () => void;
+}
+
+export default function Chat({ username, onLogout }: ChatProps) {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [input, setInput] = useState("");
 	const [connected, setConnected] = useState(false);
@@ -58,65 +67,169 @@ export default function Chat() {
 		}
 	};
 
+	const handleFileShared = (
+		fileUrl: string,
+		filename: string,
+		threatLevel: string,
+	) => {
+		const fileMessage = `📎 [File] ${filename} (${threatLevel.toUpperCase()}) - ${fileUrl}`;
+		if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+			wsRef.current.send(fileMessage);
+			setMessages((prev) => [
+				...prev,
+				{
+					id: idRef.current++,
+					text: fileUrl,
+					self: true,
+					type: "file",
+					filename: filename,
+					threatLevel: threatLevel,
+				},
+			]);
+		}
+	};
+
 	return (
-		<div style={styles.root}>
-			<div style={styles.header}>
-				<span style={styles.title}>CHATROOM</span>
-				<span
-					style={{
-						...styles.dot,
-						background: connected
-							? "#4ade80"
-							: "#f87171",
-					}}
-				/>
-			</div>
-
-			<div style={styles.messages}>
-				{messages.map((msg) => (
-					<div
-						key={msg.id}
-						style={{
-							...styles.bubble,
-							alignSelf: msg.self
-								? "flex-end"
-								: "flex-start",
-							background: msg.self
-								? "#1a1a2e"
-								: "#16213e",
-							borderBottomRightRadius: msg.self
-								? 4
-								: 18,
-							borderBottomLeftRadius: msg.self
-								? 18
-								: 4,
-						}}
-					>
-						{msg.text}
+		<>
+			<div style={styles.root}>
+				<div style={styles.header}>
+					<span style={styles.title}>CHATROOM</span>
+					<div style={styles.headerRight}>
+						<span style={styles.username}>
+							{username}
+						</span>
+						<span
+							style={{
+								...styles.dot,
+								background: connected
+									? "#4ade80"
+									: "#f87171",
+							}}
+						/>
+						<button
+							onClick={onLogout}
+							style={styles.logoutButton}
+						>
+							Logout
+						</button>
 					</div>
-				))}
-				<div ref={bottomRef} />
-			</div>
+				</div>
 
-			<div style={styles.inputRow}>
-				<input
-					style={styles.input}
-					value={input}
-					onChange={(e) => setInput(e.target.value)}
-					onKeyDown={handleKey}
-					placeholder="Type a message..."
-					disabled={!connected}
-				/>
-				<button
-					style={styles.button}
-					onClick={send}
-					disabled={!connected}
-				>
-					Send
-				</button>
+				<div style={styles.messages}>
+					{messages.map((msg) =>
+						msg.type === "file" ? (
+							<div
+								key={msg.id}
+								style={{
+									...styles.fileBubble,
+									alignSelf: msg.self
+										? "flex-end"
+										: "flex-start",
+								}}
+							>
+								<div style={styles.fileContent}>
+									<div
+										style={
+											styles.fileIcon
+										}
+									>
+										📎
+									</div>
+									<div
+										style={
+											styles.fileInfo
+										}
+									>
+										<div
+											style={
+												styles.fileTitle
+											}
+										>
+											{msg.filename}
+										</div>
+										<div
+											style={{
+												...styles.threatBadge,
+												background:
+													getThreatColor(
+														msg.threatLevel ||
+															"safe",
+													),
+											}}
+										>
+											{msg.threatLevel?.toUpperCase()}
+										</div>
+									</div>
+									<a
+										href={msg.text}
+										target="_blank"
+										rel="noopener noreferrer"
+										style={
+											styles.downloadLink
+										}
+										download
+									>
+										⬇
+									</a>
+								</div>
+							</div>
+						) : (
+							<div
+								key={msg.id}
+								style={{
+									...styles.bubble,
+									alignSelf: msg.self
+										? "flex-end"
+										: "flex-start",
+									background: msg.self
+										? "#1a1a2e"
+										: "#16213e",
+									borderBottomRightRadius:
+										msg.self ? 4 : 18,
+									borderBottomLeftRadius:
+										msg.self ? 18 : 4,
+								}}
+							>
+								{msg.text}
+							</div>
+						),
+					)}
+				</div>
+
+				<div style={styles.inputRow}>
+					<FileShare onFileShared={handleFileShared} />
+					<input
+						style={styles.input}
+						value={input}
+						onChange={(e) => setInput(e.target.value)}
+						onKeyDown={handleKey}
+						placeholder="Type a message..."
+						disabled={!connected}
+					/>
+					<button
+						style={styles.button}
+						onClick={send}
+						disabled={!connected}
+					>
+						Send
+					</button>
+				</div>
 			</div>
-		</div>
+		</>
 	);
+}
+
+function getThreatColor(level?: string) {
+	switch (level) {
+		case "high":
+			return "#ef4444";
+		case "medium":
+			return "#f59e0b";
+		case "safe":
+			return "#4ade80";
+		default:
+			return "#6b7280";
+	}
 }
 
 const styles: Record<string, React.CSSProperties> = {
@@ -137,6 +250,15 @@ const styles: Record<string, React.CSSProperties> = {
 		letterSpacing: "0.2em",
 		fontSize: 13,
 	},
+	headerRight: {
+		display: "flex",
+		alignItems: "center",
+		gap: "1rem",
+	},
+	username: {
+		fontSize: 13,
+		color: "#a0aec0",
+	},
 	title: {
 		fontWeight: 700,
 		fontSize: 15,
@@ -147,6 +269,17 @@ const styles: Record<string, React.CSSProperties> = {
 		height: 8,
 		borderRadius: "50%",
 		display: "inline-block",
+	},
+	logoutButton: {
+		background: "none",
+		color: "#f87171",
+		border: "1px solid #f87171",
+		borderRadius: 4,
+		padding: "0.4rem 0.8rem",
+		fontSize: 12,
+		cursor: "pointer",
+		fontWeight: 500,
+		transition: "all 0.3s",
 	},
 	messages: {
 		flex: 1,
@@ -193,5 +326,51 @@ const styles: Record<string, React.CSSProperties> = {
 		fontSize: 13,
 		letterSpacing: "0.1em",
 		cursor: "pointer",
+	},
+	fileBubble: {
+		maxWidth: "70%",
+		padding: "0",
+		borderRadius: 12,
+		background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+		overflow: "hidden",
+	},
+	fileContent: {
+		display: "flex",
+		alignItems: "center",
+		gap: "1rem",
+		padding: "1rem",
+	},
+	fileIcon: {
+		fontSize: 24,
+		flexShrink: 0,
+	},
+	fileInfo: {
+		flex: 1,
+		minWidth: 0,
+	},
+	fileTitle: {
+		color: "#fff",
+		fontSize: 13,
+		fontWeight: "bold",
+		wordBreak: "break-word",
+		marginBottom: "0.5rem",
+	},
+	threatBadge: {
+		display: "inline-block",
+		color: "#fff",
+		padding: "0.25rem 0.6rem",
+		borderRadius: 4,
+		fontSize: 11,
+		fontWeight: "bold",
+	},
+	downloadLink: {
+		color: "#fff",
+		fontSize: 20,
+		cursor: "pointer",
+		textDecoration: "none",
+		flexShrink: 0,
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
 	},
 };
