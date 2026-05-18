@@ -12,7 +12,8 @@ export default function Auth({ onAuthenticated }: AuthProps) {
 	const [error, setError] = useState("");
 	const [loading, setLoading] = useState(false);
 
-	const API_URL = "http://localhost:3001";
+	const API_URL =
+		import.meta.env.VITE_AUTH_API_URL || "http://localhost:3001";
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault();

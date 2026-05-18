@@ -23,7 +23,8 @@ export default function FileShare({ onFileShared }: FileShareProps) {
 		threat_analysis: ThreatAnalysis;
 	} | null>(null);
 
-	const FILE_SERVICE_URL = "http://localhost:3002";
+	const FILE_SERVICE_URL =
+		import.meta.env.VITE_FILE_SERVICE_URL || "http://localhost:3002";
 
 	const handleFileUpload = async (
 		e: React.ChangeEvent<HTMLInputElement>,

@@ -24,7 +24,9 @@ export default function Chat({ username, onLogout }: ChatProps) {
 	const idRef = useRef(0);
 
 	useEffect(() => {
-		const ws = new WebSocket("ws://localhost:8080/ws");
+		const WS_URL =
+			import.meta.env.VITE_WS_URL || "ws://localhost:8080/ws";
+		const ws = new WebSocket(WS_URL);
 		wsRef.current = ws;
 
 		ws.onopen = () => setConnected(true);
