@@ -23,23 +23,23 @@ jobs:
 
       - name: Build & Push Auth Service
         run: |
-          docker build -t $DOCKERHUB_USER/chatroom-auth-service:latest ./auth-service
-          docker push $DOCKERHUB_USER/chatroom-auth-service:latest
+          docker build -t tspdevsecops/chatroom-auth:latest ./auth-service
+          docker push tspdevsecops/chatroom-auth:latest
 
       - name: Build & Push File Service
         run: |
-          docker build -t $DOCKERHUB_USER/chatroom-file-service:latest ./file-service
-          docker push $DOCKERHUB_USER/chatroom-file-service:latest
+          docker build -t tspdevsecops/chatroom-file:latest ./file-service
+          docker push tspdevsecops/chatroom-file:latest
 
       - name: Build & Push Backend
         run: |
-          docker build -t $DOCKERHUB_USER/chatroom-backend:latest ./backend
-          docker push $DOCKERHUB_USER/chatroom-backend:latest
+          docker build -t tspdevsecops/chatroom-backend:latest ./backend
+          docker push tspdevsecops/chatroom-backend:latest
 
       - name: Build & Push Frontend
         run: |
-          docker build -t $DOCKERHUB_USER/chatroom-frontend:latest ./frontend
-          docker push $DOCKERHUB_USER/chatroom-frontend:latest
+          docker build -t tspdevsecops/chatroom-frontend:latest ./frontend
+          docker push tspdevsecops/chatroom-frontend:latest
 
 
   deploy:
