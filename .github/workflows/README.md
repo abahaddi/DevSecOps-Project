@@ -61,17 +61,8 @@ docker compose up -d --remove-orphans
 
 ## 🧠 Architecture du pipeline
 
-Push on main
-      ↓
-GitHub Actions (CI)
-      ↓
-Build Docker Images
-      ↓
-Push Docker Hub
-      ↓
-Self-hosted Runner (CD)
-      ↓
-Docker Compose Deploy
+<img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/f5a776ef-1ae6-47a5-940b-415aa15bf830" />
+
 
 ## ⚠️ Prérequis
 
