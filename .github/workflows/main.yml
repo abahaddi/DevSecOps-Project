@@ -1,4 +1,4 @@
-name: DevSecOps Chatroom CI/CD.
+name: DevSecOps Chatroom CI/CD
 
 on:
   push:
