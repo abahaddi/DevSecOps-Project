@@ -1,0 +1,24 @@
+name: DevSecOps Chatroom CI/CD.
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Check Docker
+        run: |
+          docker version
+          docker compose version
+
+      - name: Build images
+        run: docker compose build
+
+      - name: Restart containers
+        run: docker compose up -d --remove-orphans
